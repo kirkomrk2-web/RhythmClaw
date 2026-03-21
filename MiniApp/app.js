@@ -27,7 +27,7 @@ if (tg.themeParams) {
 const MIDI_SERVER_URL =
   (tg.initDataUnsafe && tg.initDataUnsafe.start_param) ||
   localStorage.getItem('rhythmclaw_server') ||
-  'http://localhost:8080';
+  'http://localhost:8000';
 
 const POLL_INTERVAL_MS = 2000;
 const EDGE_SNAP_THRESHOLD = 60;
