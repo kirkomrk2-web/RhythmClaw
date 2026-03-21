@@ -1,0 +1,462 @@
+/* ============================================================
+   RhythmClaw — DJ Mini-Player Styles
+   ============================================================ */
+
+/* --- Design Tokens --- */
+:root {
+  --bg: #0d0d0d;
+  --surface: #1a1a2e;
+  --border: #2a2a3e;
+  --primary: #a855f7;
+  --secondary: #06b6d4;
+  --text: #f0f0f0;
+  --text-secondary: #888888;
+  --like-active: #ef4444;
+  --radius: 16px;
+  --radius-sm: 8px;
+  --gap: 12px;
+  --transition: 200ms ease;
+}
+
+/* --- Reset & Base --- */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+/* --- Mini-Player Container --- */
+.mini-player {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  min-height: 100dvh;
+  padding-top: max(16px, env(safe-area-inset-top));
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  position: relative;
+  will-change: transform;
+  transition: transform 300ms ease, opacity 300ms ease;
+}
+
+/* --- Header --- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0 8px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+}
+
+/* --- Now Playing Card --- */
+.now-playing {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.track-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.track-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-artist {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-badges {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.badge-bpm {
+  background: var(--primary);
+  color: #fff;
+}
+
+.badge-deck {
+  background: transparent;
+  color: var(--secondary);
+  border: 1px solid var(--secondary);
+}
+
+/* --- Waveform --- */
+.waveform-section {
+  width: 100%;
+}
+
+#waveform-canvas {
+  display: block;
+  width: 100%;
+  height: 60px;
+  background: #111;
+  border-radius: var(--radius-sm);
+}
+
+/* --- Transport Controls --- */
+.transport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 8px 0;
+}
+
+.transport-btn {
+  width: 48px;
+  height: 48px;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.transport-btn:hover,
+.transport-btn:focus-visible {
+  background: #252540;
+  box-shadow: 0 0 12px var(--primary);
+}
+
+.transport-btn:active {
+  transform: scale(0.92);
+}
+
+.transport-btn--play {
+  width: 56px;
+  height: 56px;
+  background: var(--primary);
+  color: #fff;
+}
+
+.transport-btn--play:hover,
+.transport-btn--play:focus-visible {
+  background: #b96dfc;
+  box-shadow: 0 0 20px var(--primary);
+}
+
+/* --- Like Button --- */
+.like-section {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.like-btn {
+  width: 48px;
+  height: 48px;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color var(--transition), transform var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.like-btn:hover {
+  color: var(--like-active);
+}
+
+.like-btn:active {
+  transform: scale(0.88);
+}
+
+.like-btn.active {
+  color: var(--like-active);
+  animation: pulse 400ms ease;
+}
+
+.like-btn.active svg {
+  fill: var(--like-active);
+  stroke: var(--like-active);
+}
+
+/* --- Bottom Bar --- */
+.bottom-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Crossfader */
+.crossfader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.crossfader-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  width: 14px;
+  text-align: center;
+}
+
+.crossfader-track {
+  flex: 1;
+  height: 6px;
+  background: #111;
+  border-radius: 3px;
+  position: relative;
+}
+
+.crossfader-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--secondary), var(--primary));
+  width: 50%;
+  transition: width 150ms ease;
+}
+
+.crossfader-thumb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  background: var(--text);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+  transition: left 150ms ease;
+}
+
+/* FX Indicators */
+.fx-indicators {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.fx-dot {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #111;
+  letter-spacing: 0.03em;
+  transition: color var(--transition), background var(--transition);
+}
+
+.fx-dot.active {
+  color: var(--secondary);
+  background: rgba(6, 182, 212, 0.15);
+}
+
+/* --- Edge Tab (Collapsed State) --- */
+.edge-tab {
+  display: none;
+  position: fixed;
+  top: 50%;
+  width: 40px;
+  height: 120px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 300ms ease, opacity 300ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.edge-tab--left {
+  left: 0;
+  transform: translateY(-50%);
+  border-radius: 0 12px 12px 0;
+  border-left: 3px solid var(--primary);
+}
+
+.edge-tab--right {
+  right: 0;
+  transform: translateY(-50%);
+  border-radius: 12px 0 0 12px;
+  border-right: 3px solid var(--primary);
+}
+
+.edge-tab.visible {
+  display: flex;
+}
+
+/* --- Animations --- */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.3);
+  }
+  60% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes expand-enter {
+  0% {
+    transform: translateX(var(--slide-from, 100%));
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes collapse-exit {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(var(--slide-to, 100%));
+    opacity: 0;
+  }
+}
+
+.expand-enter {
+  animation: expand-enter 300ms ease forwards;
+}
+
+.collapse-exit {
+  animation: collapse-exit 300ms ease forwards;
+}
+
+/* --- Responsive --- */
+@media (max-width: 320px) {
+  .mini-player {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .track-name {
+    font-size: 16px;
+  }
+
+  .transport {
+    gap: 18px;
+  }
+
+  .transport-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .transport-btn--play {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (min-width: 400px) {
+  .mini-player {
+    padding-top: max(24px, env(safe-area-inset-top));
+  }
+}
