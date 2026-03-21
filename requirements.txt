@@ -1,0 +1,22 @@
+# RhythmClaw Dependencies
+# Core
+fastapi>=0.104.0
+uvicorn>=0.24.0
+mido>=1.3.0
+python-rtmidi>=1.5.0
+
+# Telegram Bot
+python-telegram-bot>=20.7
+
+# Database
+supabase>=2.3.0
+
+# Music Services
+spotipy>=2.23.0
+yt-dlp>=2023.12.0
+tidalapi>=0.7.0
+
+# Utilities
+httpx>=0.25.0
+pydantic>=2.5.0
+python-dotenv>=1.0.0
