@@ -28,6 +28,8 @@ from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     Update,
+    User,
+    Chat,
 )
 from telegram.constants import ParseMode
 from telegram.ext import (
@@ -57,6 +59,26 @@ SUPABASE_URL: str = os.environ["SUPABASE_URL"]
 SUPABASE_KEY: str = os.environ["SUPABASE_KEY"]
 
 TRANSLATIONS_PATH = Path(__file__).resolve().parent.parent / "Config" / "translations.json"
+
+
+# ---------------------------------------------------------------------------
+# Update extraction helpers
+# ---------------------------------------------------------------------------
+
+def _get_user(update: Update) -> User:
+    """Extract the User from an update, raising if absent."""
+    user = update.effective_user
+    if user is None:
+        raise ValueError("Update has no effective_user")
+    return user
+
+
+def _get_chat(update: Update) -> Chat:
+    """Extract the Chat from an update, raising if absent."""
+    chat = update.effective_chat
+    if chat is None:
+        raise ValueError("Update has no effective_chat")
+    return chat
 
 # ---------------------------------------------------------------------------
 # Global state (per-user, in-memory)
@@ -157,7 +179,8 @@ async def add_favorite(user_id: int, track_id: str, track_name: str) -> None:
                 "track_id": track_id,
                 "track_name": track_name,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
+            },
+            on_conflict="user_id,track_id",
         ).execute()
     except Exception:
         logger.exception("Supabase: failed to add favorite for user %s", user_id)
@@ -269,8 +292,8 @@ async def send_menu(
     If the interaction comes from a callback query, we edit the existing
     message.  Otherwise we delete the old message and send a new one.
     """
-    user_id = update.effective_user.id  # type: ignore[union-attr]
-    chat_id = update.effective_chat.id  # type: ignore[union-attr]
+    user_id = _get_user(update).id
+    chat_id = _get_chat(update).id
 
     if push_state is not None:
         nav_stack.setdefault(user_id, []).append(push_state)
@@ -308,7 +331,7 @@ async def answer_toast(query: CallbackQuery, text: str) -> None:
 
 async def safe_error(update: Update, context: ContextTypes.DEFAULT_TYPE, lang: str) -> None:
     """Send a generic error message to the user."""
-    chat_id = update.effective_chat.id  # type: ignore[union-attr]
+    chat_id = _get_chat(update).id
     await context.bot.send_message(chat_id=chat_id, text=t("error_generic", lang))
 
 
@@ -490,7 +513,7 @@ def build_history_menu(tracks: list[str], lang: str) -> tuple[str, InlineKeyboar
 
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /start — send the main menu."""
-    user_id = update.effective_user.id  # type: ignore[union-attr]
+    user_id = _get_user(update).id
     lang = await get_user_lang(user_id)
     nav_stack[user_id] = ["main"]
     text, kb = build_main_menu(lang)
@@ -499,9 +522,9 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /help — show help text."""
-    user_id = update.effective_user.id  # type: ignore[union-attr]
+    user_id = _get_user(update).id
     lang = await get_user_lang(user_id)
-    chat_id = update.effective_chat.id  # type: ignore[union-attr]
+    chat_id = _get_chat(update).id
     await delete_last_message(user_id, context, chat_id)
     msg = await context.bot.send_message(
         chat_id=chat_id,
@@ -513,8 +536,8 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def cmd_now_playing(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /nowplaying — show (or update) the Now Playing card."""
-    user_id = update.effective_user.id  # type: ignore[union-attr]
-    chat_id = update.effective_chat.id  # type: ignore[union-attr]
+    user_id = _get_user(update).id
+    chat_id = _get_chat(update).id
     lang = await get_user_lang(user_id)
     try:
         data = await midi_get("/now_playing")
@@ -552,7 +575,7 @@ async def cmd_now_playing(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def cmd_history(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /history — show last 5 played tracks."""
-    user_id = update.effective_user.id  # type: ignore[union-attr]
+    user_id = _get_user(update).id
     lang = await get_user_lang(user_id)
     try:
         data = await midi_get("/history")
@@ -576,7 +599,7 @@ async def callback_router(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         return
     await query.answer()
 
-    user_id = update.effective_user.id  # type: ignore[union-attr]
+    user_id = _get_user(update).id
     lang = await get_user_lang(user_id)
     data = query.data
 
@@ -908,8 +931,8 @@ async def _handle_now_playing(
 
 async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle uploaded MP3/MP4 files."""
-    user_id = update.effective_user.id  # type: ignore[union-attr]
-    chat_id = update.effective_chat.id  # type: ignore[union-attr]
+    user_id = _get_user(update).id
+    chat_id = _get_chat(update).id
     lang = await get_user_lang(user_id)
     doc = update.message.document  # type: ignore[union-attr]
 
@@ -968,6 +991,12 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
             pass
 
 
+async def _shutdown_cleanup(_app: Application) -> None:
+    """Clean up resources on bot shutdown."""
+    await http_client.aclose()
+    logger.info("HTTP client closed.")
+
+
 # ---------------------------------------------------------------------------
 # Application setup
 # ---------------------------------------------------------------------------
@@ -992,6 +1021,9 @@ def main() -> None:
 
     # Global error handler
     app.add_error_handler(error_handler)
+
+    # Lifecycle
+    app.post_shutdown(_shutdown_cleanup)
 
     logger.info("Starting RhythmClaw Telegram bot…")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
