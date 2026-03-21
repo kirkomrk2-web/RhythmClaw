@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>RhythmClaw — DJ Mini-Player</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <div id="mini-player" class="mini-player">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="#a855f7" stroke-width="2"/>
+          <circle cx="12" cy="12" r="4" fill="#a855f7"/>
+          <line x1="12" y1="2" x2="12" y2="6" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
+          <line x1="12" y1="18" x2="12" y2="22" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="logo-text">RhythmClaw</span>
+      </div>
+    </header>
+
+    <!-- Now Playing -->
+    <section class="now-playing">
+      <div class="track-info">
+        <div class="track-name" id="track-name">No Track Loaded</div>
+        <div class="track-artist" id="track-artist">—</div>
+      </div>
+      <div class="track-badges">
+        <span class="badge badge-bpm" id="badge-bpm">— BPM</span>
+        <span class="badge badge-deck" id="badge-deck">D1</span>
+      </div>
+    </section>
+
+    <!-- Waveform -->
+    <section class="waveform-section">
+      <canvas id="waveform-canvas"></canvas>
+    </section>
+
+    <!-- Transport Controls -->
+    <section class="transport">
+      <button class="transport-btn" id="btn-prev" aria-label="Previous track">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/>
+        </svg>
+      </button>
+      <button class="transport-btn transport-btn--play" id="btn-play" aria-label="Play or pause">
+        <svg id="icon-play" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        <svg id="icon-pause" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+          <path d="M6 19h4V5H6zm8-14v14h4V5z"/>
+        </svg>
+      </button>
+      <button class="transport-btn" id="btn-next" aria-label="Next track">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6 18l8.5-6L6 6v12zm2.5-6 8.5 6V6z" transform="rotate(180 12 12)"/>
+        </svg>
+      </button>
+    </section>
+
+    <!-- Like Button -->
+    <section class="like-section">
+      <button class="like-btn" id="btn-like" aria-label="Like track">
+        <svg id="icon-heart" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </button>
+    </section>
+
+    <!-- Bottom Bar -->
+    <section class="bottom-bar">
+      <div class="crossfader">
+        <span class="crossfader-label">A</span>
+        <div class="crossfader-track">
+          <div class="crossfader-fill" id="crossfader-fill"></div>
+          <div class="crossfader-thumb" id="crossfader-thumb"></div>
+        </div>
+        <span class="crossfader-label">B</span>
+      </div>
+      <div class="fx-indicators">
+        <span class="fx-dot" id="fx-echo" title="Echo">EC</span>
+        <span class="fx-dot" id="fx-reverb" title="Reverb">RV</span>
+        <span class="fx-dot" id="fx-filter" title="Filter">FL</span>
+      </div>
+    </section>
+  </div>
+
+  <!-- Edge Tab (collapsed state) -->
+  <div class="edge-tab" id="edge-tab" aria-label="Expand mini-player">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="#a855f7">
+      <rect x="3" y="18" width="3" height="6" rx="1"/>
+      <rect x="8" y="14" width="3" height="10" rx="1"/>
+      <rect x="13" y="10" width="3" height="14" rx="1"/>
+      <rect x="18" y="6" width="3" height="18" rx="1"/>
+    </svg>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
