@@ -97,6 +97,9 @@ CC_JOG_NUDGE = 0x22
 VELOCITY_ON = 0x7F
 VELOCITY_OFF = 0x00
 
+# Default BPM assumption for crossfade timing (until BPM-aware integration)
+DEFAULT_BPM: int = int(os.getenv("DEFAULT_BPM", "120"))
+
 
 def _deck_note_on(deck: int) -> int:
     """Return NOTE ON status byte for the given deck (1 or 2)."""
@@ -161,6 +164,22 @@ class QueueResponse(BaseModel):
     queue: list[QueueItem]
 
 
+class NowPlayingResponse(BaseModel):
+    """Current now-playing information."""
+
+    track_id: str
+    track_name: str
+    deck: int
+    bpm: int
+    is_playing: bool
+
+
+class HistoryResponse(BaseModel):
+    """Playback history."""
+
+    tracks: list[str]
+
+
 class StatusResponse(BaseModel):
     """Current controller status."""
 
@@ -169,6 +188,11 @@ class StatusResponse(BaseModel):
     autoqueue_running: bool
     queue_length: int
     decks: dict[str, Any]
+    # Additional fields for Mini App polling
+    track: Optional[dict[str, Any]] = None
+    is_playing: bool = False
+    crossfader: int = 64
+    fx: Optional[dict[str, bool]] = None
 
 
 # ---------------------------------------------------------------------------
@@ -266,9 +290,13 @@ class AutoQueueManager:
         self._task: Optional[asyncio.Task[None]] = None
         self.queue: list[QueueItem] = []
         self.decks: dict[int, dict[str, Any]] = {
-            1: {"playing": False, "remaining_seconds": None, "track_id": None},
-            2: {"playing": False, "remaining_seconds": None, "track_id": None},
+            1: {"playing": False, "remaining_seconds": None, "track_id": None, "track_name": "", "bpm": DEFAULT_BPM},
+            2: {"playing": False, "remaining_seconds": None, "track_id": None, "track_name": "", "bpm": DEFAULT_BPM},
         }
+        self.active_deck: int = 1
+        self.crossfader_value: int = 64
+        self.fx_state: dict[str, bool] = {"fx1": False, "fx2": False}
+        self.history: list[str] = []  # last played track names (max 20)
 
     # -- queue manipulation --------------------------------------------------
 
@@ -368,9 +396,10 @@ class AutoQueueManager:
         start_val = 0 if from_deck == 1 else 127
         end_val = 127 if from_deck == 1 else 0
         steps = 32
-        # Approximate timing: assume ~120 BPM → 0.5 s/beat as a sensible default.
-        # For BPM-aware crossfades, integrate with deck BPM metadata in a future update.
-        step_delay = (CROSSFADE_BEATS * 0.5) / steps
+        # Use configurable DEFAULT_BPM for crossfade timing.
+        # TODO: Integrate with deck BPM metadata for BPM-aware crossfades.
+        seconds_per_beat = 60.0 / DEFAULT_BPM
+        step_delay = (CROSSFADE_BEATS * seconds_per_beat) / steps
 
         # Start playing the target deck
         self.midi.note_trigger(_deck_note_on(to_deck), NOTE_PLAY_PAUSE)
@@ -798,13 +827,69 @@ async def queue_list() -> QueueResponse:
 )
 async def controller_status() -> StatusResponse:
     """Return the current status of the MIDI controller and queue."""
+    active_deck_info = None
+    is_playing = False
+    crossfader = 64
+    fx = None
+
+    if autoqueue:
+        ad = autoqueue.active_deck
+        deck_info = autoqueue.decks.get(ad, {})
+        active_deck_info = {
+            "name": deck_info.get("track_name", ""),
+            "artist": "",
+            "bpm": deck_info.get("bpm", DEFAULT_BPM),
+            "deck": ad,
+        }
+        is_playing = deck_info.get("playing", False)
+        crossfader = autoqueue.crossfader_value
+        fx = autoqueue.fx_state
+
     return StatusResponse(
         midi_connected=midi_controller.connected,
         midi_port=midi_controller.port_name,
         autoqueue_running=autoqueue.running if autoqueue else False,
         queue_length=len(autoqueue.queue) if autoqueue else 0,
         decks=autoqueue.decks if autoqueue else {},
+        track=active_deck_info,
+        is_playing=is_playing,
+        crossfader=crossfader,
+        fx=fx,
     )
+
+
+@app.get(
+    "/api/v1/now_playing",
+    response_model=NowPlayingResponse,
+    tags=["Status"],
+)
+async def now_playing() -> NowPlayingResponse:
+    """Return information about the currently playing track."""
+    if autoqueue is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Auto-queue manager not initialised.",
+        )
+    ad = autoqueue.active_deck
+    deck_info = autoqueue.decks.get(ad, {})
+    return NowPlayingResponse(
+        track_id=deck_info.get("track_id") or "unknown",
+        track_name=deck_info.get("track_name") or "No Track",
+        deck=ad,
+        bpm=deck_info.get("bpm", DEFAULT_BPM),
+        is_playing=deck_info.get("playing", False),
+    )
+
+
+@app.get(
+    "/api/v1/history",
+    response_model=HistoryResponse,
+    tags=["Status"],
+)
+async def playback_history() -> HistoryResponse:
+    """Return the last played tracks."""
+    tracks = autoqueue.history[-5:] if autoqueue else []
+    return HistoryResponse(tracks=tracks)
 
 
 # ---------------------------------------------------------------------------

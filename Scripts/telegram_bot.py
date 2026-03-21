@@ -237,13 +237,21 @@ async def toggle_user_setting(user_id: int, key: str) -> bool:
 # MIDI server helpers
 # ---------------------------------------------------------------------------
 
+def _api_path(endpoint: str) -> str:
+    """Ensure the endpoint is prefixed with /api/v1."""
+    if endpoint.startswith("/api/v1"):
+        return endpoint
+    return f"/api/v1{endpoint}"
+
+
 async def midi_command(endpoint: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
     """Send a command to the MIDI server and return the JSON response."""
+    url = _api_path(endpoint)
     try:
         if payload:
-            resp = await http_client.post(endpoint, json=payload)
+            resp = await http_client.post(url, json=payload)
         else:
-            resp = await http_client.post(endpoint)
+            resp = await http_client.post(url)
         resp.raise_for_status()
         return resp.json()
     except httpx.HTTPStatusError as exc:
@@ -256,12 +264,13 @@ async def midi_command(endpoint: str, payload: dict[str, Any] | None = None) -> 
 
 async def midi_get(endpoint: str) -> dict[str, Any]:
     """GET request to the MIDI server."""
+    url = _api_path(endpoint)
     try:
-        resp = await http_client.get(endpoint)
+        resp = await http_client.get(url)
         resp.raise_for_status()
         return resp.json()
     except Exception:
-        logger.exception("MIDI server GET error on %s", endpoint)
+        logger.exception("MIDI server GET error on %s", url)
         raise
 
 
@@ -700,7 +709,16 @@ async def _handle_global_cmd(
 ) -> None:
     cmd = data.split(":")[1]
     try:
-        await midi_command(f"/transport/{cmd}")
+        # Map global commands to deck-specific MIDI server endpoints.
+        # Default to active deck 1 for global controls.
+        if cmd == "play":
+            await midi_command("/deck/1/play")
+        elif cmd == "pause":
+            await midi_command("/deck/1/play")  # play/pause is a toggle
+        elif cmd == "skip":
+            await midi_command("/deck/2/load")
+        else:
+            await midi_command(f"/deck/1/{cmd}")
         await answer_toast(update.callback_query, t(f"{cmd}_confirm", lang))  # type: ignore[arg-type]
     except Exception:
         await answer_toast(update.callback_query, t("error_midi", lang))  # type: ignore[arg-type]
@@ -743,11 +761,18 @@ async def _handle_deck(
         pad = int(parts[3])
         endpoint = f"/deck/{deck}/hotcue/{pad}"
     elif action == "loop":
-        beats = parts[3]
-        endpoint = f"/deck/{deck}/loop/{beats}"
+        bars = parts[3]
+        endpoint = f"/deck/{deck}/beatloop/{bars}"
     elif action == "jump":
-        beats = parts[3]
-        endpoint = f"/deck/{deck}/jump/{beats}"
+        # parts[3] is like "-2" (backward) or "8" (forward)
+        raw = parts[3]
+        if raw.startswith("-"):
+            direction = "bwd"
+            bars = raw[1:]  # strip the minus sign
+        else:
+            direction = "fwd"
+            bars = raw
+        endpoint = f"/deck/{deck}/beatjump/{direction}/{bars}"
     else:
         endpoint = f"/deck/{deck}/{action}"
 
@@ -780,7 +805,10 @@ async def _handle_queue(
         return
     if action == "clear":
         try:
-            await midi_command("/queue/clear")
+            # Clear queue by fetching current items and removing each
+            queue_data = await midi_get("/queue")
+            for item in queue_data.get("queue", []):
+                await http_client.delete(_api_path(f"/queue/{item['track_id']}"))
             await answer_toast(update.callback_query, t("queue_cleared", lang))  # type: ignore[arg-type]
         except Exception:
             await answer_toast(update.callback_query, t("error_midi", lang))  # type: ignore[arg-type]
@@ -795,10 +823,11 @@ async def _handle_queue(
 # ---------------------------------------------------------------------------
 
 async def _fetch_fx_state() -> tuple[bool, bool]:
-    """Fetch FX on/off state from the MIDI server."""
+    """Fetch FX on/off state from the MIDI server status endpoint."""
     try:
-        data = await midi_get("/fx/state")
-        return data.get("fx1", False), data.get("fx2", False)
+        data = await midi_get("/status")
+        fx = data.get("fx") or {}
+        return fx.get("fx1", False), fx.get("fx2", False)
     except Exception:
         return False, False
 
@@ -829,11 +858,9 @@ async def _handle_library(
     if source == "upload":
         await answer_toast(update.callback_query, t("lib_upload_prompt", lang))  # type: ignore[arg-type]
         return
-    try:
-        await midi_command(f"/library/browse", payload={"source": source})
-        await answer_toast(update.callback_query, t("lib_browsing", lang).format(source=source.title()))  # type: ignore[arg-type]
-    except Exception:
-        await answer_toast(update.callback_query, t("error_midi", lang))  # type: ignore[arg-type]
+    # Library browsing is handled by the music_sync module.
+    # Show a toast indicating the source will be loaded.
+    await answer_toast(update.callback_query, t("lib_browsing", lang).format(source=source.title()))  # type: ignore[arg-type]
 
 
 # ---------------------------------------------------------------------------
@@ -910,13 +937,13 @@ async def _handle_now_playing(
             await answer_toast(update.callback_query, t("error_generic", lang))  # type: ignore[arg-type]
     elif action == "skip":
         try:
-            await midi_command("/transport/skip")
+            await midi_command("/deck/2/load")
             await answer_toast(update.callback_query, t("skip_confirm", lang))  # type: ignore[arg-type]
         except Exception:
             await answer_toast(update.callback_query, t("error_midi", lang))  # type: ignore[arg-type]
     elif action == "pause":
         try:
-            await midi_command("/transport/pause")
+            await midi_command("/deck/1/play")  # play/pause is a toggle
             await answer_toast(update.callback_query, t("pause_confirm", lang))  # type: ignore[arg-type]
         except Exception:
             await answer_toast(update.callback_query, t("error_midi", lang))  # type: ignore[arg-type]

@@ -101,15 +101,18 @@ async function apiCall(endpoint, method = 'POST', body = null) {
 async function togglePlay() {
   state.isPlaying = !state.isPlaying;
   renderPlayState();
-  await apiCall('/api/v1/transport/toggle', 'POST');
+  await apiCall(`/api/v1/deck/${state.currentTrack.deck}/play`, 'POST');
 }
 
 async function skipTrack() {
-  await apiCall('/api/v1/transport/next', 'POST');
+  // Load next queued track on the opposing deck
+  const nextDeck = state.currentTrack.deck === 1 ? 2 : 1;
+  await apiCall(`/api/v1/deck/${nextDeck}/load`, 'POST');
 }
 
 async function prevTrack() {
-  await apiCall('/api/v1/transport/prev', 'POST');
+  // Cue the current deck (return to cue point)
+  await apiCall(`/api/v1/deck/${state.currentTrack.deck}/cue`, 'POST');
 }
 
 async function toggleLike() {
@@ -382,8 +385,8 @@ async function fetchStatus() {
     renderTrackInfo();
   }
 
-  if (typeof data.isPlaying === 'boolean' && data.isPlaying !== state.isPlaying) {
-    state.isPlaying = data.isPlaying;
+  if (typeof data.is_playing === 'boolean' && data.is_playing !== state.isPlaying) {
+    state.isPlaying = data.is_playing;
     renderPlayState();
   }
 
@@ -392,15 +395,9 @@ async function fetchStatus() {
     renderCrossfader();
   }
 
-  if (typeof data.isLiked === 'boolean') {
-    state.isLiked = data.isLiked;
-    renderLike();
-  }
-
   if (data.fx) {
-    els.fxEcho.classList.toggle('active', !!data.fx.echo);
-    els.fxReverb.classList.toggle('active', !!data.fx.reverb);
-    els.fxFilter.classList.toggle('active', !!data.fx.filter);
+    els.fxEcho.classList.toggle('active', !!data.fx.fx1);
+    els.fxReverb.classList.toggle('active', !!data.fx.fx2);
   }
 }
 
