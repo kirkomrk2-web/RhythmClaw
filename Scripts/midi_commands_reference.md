@@ -17,6 +17,10 @@ All hex values follow the **Pioneer DDJ-FLX4 MIDI Message List**.
 | Beat Sync (Deck 2) | `POST /api/v1/deck/2/sync` | Note On → Off | Ch 2 (0x91) | Note 0x58 | Beat-sync on Deck 2 |
 | Load Track (Deck 1) | `POST /api/v1/deck/1/load` | Note On → Off | Ch 1 (0x90) | Note 0x46 | Load selected track to Deck 1 |
 | Load Track (Deck 2) | `POST /api/v1/deck/2/load` | Note On → Off | Ch 2 (0x91) | Note 0x46 | Load selected track to Deck 2 |
+| **Slip Toggle (Deck 1)** | `POST /api/v1/deck/1/slip/toggle` | Note On→Off / Note Off | Ch 1 (0x90/0x80) | Note 0x40 | Toggle slip mode ON (note_trigger) or OFF (explicit note_off). Fixes bug where slip kept playing after button unclick. |
+| **Slip Toggle (Deck 2)** | `POST /api/v1/deck/2/slip/toggle` | Note On→Off / Note Off | Ch 2 (0x91/0x81) | Note 0x40 | Same fix for Deck 2. |
+| **Slip State (Deck 1)** | `GET /api/v1/deck/1/slip` | — | — | — | Returns `{"deck":1,"slip":true/false}` |
+| **Slip State (Deck 2)** | `GET /api/v1/deck/2/slip` | — | — | — | Returns `{"deck":2,"slip":true/false}` |
 | Tempo (Deck 1) | `POST /api/v1/deck/1/tempo` | CC | Ch 1 (0xB0) | CC 0x00 | Set tempo slider (0-127) |
 | Tempo (Deck 2) | `POST /api/v1/deck/2/tempo` | CC | Ch 2 (0xB1) | CC 0x00 | Set tempo slider (0-127) |
 | Jog Nudge (Deck 1) | `POST /api/v1/deck/1/jog` | CC | Ch 1 (0xB0) | CC 0x22 | Jog-wheel nudge (0-127) |

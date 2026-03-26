@@ -73,6 +73,7 @@ NOTE_SYNC = 0x58
 NOTE_LOAD = 0x46
 NOTE_FX1 = 0x47
 NOTE_FX2 = 0x48
+NOTE_SLIP = 0x40  # DDJ-FLX4 slip mode button (Ch1 deck1 / Ch2 deck2)
 
 # Hot Cue pads 1-8  (Performance Pad mode)
 HOTCUE_NOTES: list[int] = [0x00 + i for i in range(8)]
@@ -296,6 +297,7 @@ class AutoQueueManager:
         self.active_deck: int = 1
         self.crossfader_value: int = 64
         self.fx_state: dict[str, bool] = {"fx1": False, "fx2": False}
+        self.slip_state: dict[int, bool] = {1: False, 2: False}  # per-deck slip mode state
         self.history: list[str] = []  # last played track names (max 20)
 
     # -- queue manipulation --------------------------------------------------
@@ -681,6 +683,51 @@ async def fx_toggle(unit: int) -> MidiMessageResponse:
     note = NOTE_FX1 if unit == 1 else NOTE_FX2
     midi_info = midi_controller.note_trigger(MidiStatus.NOTE_ON_CH5, note)
     return _ok(f"FX {unit} toggled", midi_info)
+
+
+# ---------------------------------------------------------------------------
+# Slip mode endpoints
+# ---------------------------------------------------------------------------
+
+
+@app.post(
+    "/api/v1/deck/{deck}/slip/toggle",
+    response_model=MidiMessageResponse,
+    tags=["Deck"],
+)
+async def deck_slip_toggle(deck: int) -> MidiMessageResponse:
+    """Toggle Slip mode on/off for the given deck.
+
+    Bug fix: Previously slip played regardless of button state because MIDI
+    Note On/Off was sent unconditionally.  Now the server tracks per-deck slip
+    state and only activates the MIDI note when turning slip ON; turning it OFF
+    sends an explicit Note Off so the controller LED and slip behaviour stay in
+    sync.
+    """
+    _validate_deck(deck)
+    current = autoqueue.slip_state[deck]
+    new_state = not current
+    autoqueue.slip_state[deck] = new_state
+
+    status_byte = _deck_note_on(deck)
+    if new_state:
+        # Activate slip: Note On → Note Off (button press)
+        midi_info = midi_controller.note_trigger(status_byte, NOTE_SLIP)
+    else:
+        # Deactivate slip: explicit Note Off to stop slip playback
+        midi_info = midi_controller.note_off(_deck_note_off(deck), NOTE_SLIP)
+    state_label = "ON" if new_state else "OFF"
+    return _ok(f"Deck {deck} slip mode {state_label}", midi_info)
+
+
+@app.get(
+    "/api/v1/deck/{deck}/slip",
+    tags=["Deck"],
+)
+async def deck_slip_state(deck: int) -> dict:
+    """Return current slip mode state for the given deck."""
+    _validate_deck(deck)
+    return {"deck": deck, "slip": autoqueue.slip_state[deck]}
 
 
 # ---------------------------------------------------------------------------
