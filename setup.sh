@@ -56,16 +56,34 @@ for pkg in portaudio ffmpeg libsndfile; do
   else info "Installing $pkg..."; brew install $pkg; ok "$pkg installed"; fi
 done
 
-# 7 — Fixed for zsh compatibility (no associative arrays)
+# 7 — Uses venv to avoid externally-managed-environment error (Python 3.12+)
 step 7 "Python DJ libraries"
-LIBS="python-rtmidi librosa aubio numpy scipy sounddevice soundfile"
-LIBS2="python-telegram-bot supabase SpeechRecognition"
+VENV_DIR="$HOME/rhythmclaw-env"
 
-echo "  Installing core DJ libs..."
-pip3 install --quiet $LIBS 2>/dev/null && ok "Core: rtmidi, librosa, aubio, numpy, scipy, sounddevice, soundfile" || warn "Some core libs failed — run manually: pip3 install $LIBS"
+if [ ! -d "$VENV_DIR" ]; then
+  info "Creating Python virtual environment at $VENV_DIR..."
+  python3 -m venv "$VENV_DIR"
+  ok "Virtual environment created"
+else
+  ok "Virtual environment exists at $VENV_DIR"
+fi
 
-echo "  Installing bot & cloud libs..."
-pip3 install --quiet $LIBS2 2>/dev/null && ok "Bot: telegram-bot, supabase, SpeechRecognition" || warn "Some bot libs failed — run manually: pip3 install $LIBS2"
+# Activate venv
+source "$VENV_DIR/bin/activate"
+ok "Activated venv ($(python3 --version))"
+
+info "Installing DJ & MIDI libraries (this may take a few minutes)..."
+pip install --quiet --upgrade pip 2>/dev/null
+
+pip install python-rtmidi 2>/dev/null && ok "python-rtmidi" || warn "python-rtmidi failed"
+pip install librosa 2>/dev/null && ok "librosa" || warn "librosa failed"
+pip install numpy scipy 2>/dev/null && ok "numpy + scipy" || warn "numpy/scipy failed"
+pip install sounddevice soundfile 2>/dev/null && ok "sounddevice + soundfile" || warn "sounddevice failed"
+pip install python-telegram-bot 2>/dev/null && ok "python-telegram-bot" || warn "telegram-bot failed"
+pip install supabase 2>/dev/null && ok "supabase" || warn "supabase failed"
+pip install SpeechRecognition 2>/dev/null && ok "SpeechRecognition" || warn "SpeechRecognition failed"
+
+info "NOTE: Run 'source ~/rhythmclaw-env/bin/activate' each time you open Terminal"
 
 # 8
 step 8 "MIDI Controller"
