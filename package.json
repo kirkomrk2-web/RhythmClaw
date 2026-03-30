@@ -1,0 +1,16 @@
+{
+  "name": "rhythmclaw",
+  "version": "2.0.0",
+  "description": "RhythmClaw AI DJ Controller — Pioneer DDJ-FLX4 + Telegram + AI Mixing",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.0",
+    "cors": "^2.8.5"
+  },
+  "author": "Wallestars",
+  "license": "MIT"
+}
