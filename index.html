@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RhythmClaw — AI DJ Controller</title>
+  <meta name="description" content="Pioneer DDJ-FLX4 meets AI automation. Real-time beat analysis, crossfading, and song recommendations via Telegram Mini App.">
+  <meta property="og:title" content="RhythmClaw — AI DJ Controller">
+  <meta property="og:description" content="AI-powered DJ automation with Pioneer DDJ-FLX4 integration and Telegram Mini App.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://rhythmclaw.dev/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="RhythmClaw — AI DJ Controller">
+  <meta name="twitter:description" content="AI-powered DJ automation with Pioneer DDJ-FLX4 integration and Telegram Mini App.">
+  <meta name="twitter:image" content="https://rhythmclaw.dev/og-image.png">
+  <meta name="theme-color" content="#080808">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23080808'/><path d='M8 22V14L12 10V22M14 22V12L18 8V22M20 22V14L24 10V22' stroke='%23ff1744' stroke-width='2' stroke-linecap='round'/><circle cx='16' cy='6' r='2' fill='%2300e676'/></svg>">
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-grotesk@400,500,600,700&f[]=switzer@400,500,600,700&display=swap" rel="stylesheet">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ========== HEADER ========== -->
+  <header class="site-header" data-header>
+    <div class="header-inner">
+      <a href="/" class="header-logo" aria-label="RhythmClaw Home">
+        <svg class="logo-icon" width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+          <circle cx="18" cy="18" r="16" stroke="#ff1744" stroke-width="1.5" opacity="0.4"/>
+          <circle cx="18" cy="18" r="11" stroke="#00e676" stroke-width="1" opacity="0.3"/>
+          <line x1="10" y1="24" x2="12" y2="10" stroke="#ff1744" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="16" y1="26" x2="18" y2="8" stroke="#00e676" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="22" y1="24" x2="24" y2="12" stroke="#ff1744" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="11" cy="8" r="1.5" fill="#00e676"/>
+          <circle cx="25" cy="10" r="1.5" fill="#ff1744"/>
+        </svg>
+        <span class="header-logo-text">RhythmClaw</span>
+      </a>
+      <nav class="header-nav" aria-label="Main navigation">
+        <ul role="list" class="nav-list">
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="#controller" class="nav-link">Controller</a></li>
+          <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+          <li><a href="#tech" class="nav-link">Tech</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <a href="https://github.com/kirkomrk2-web/RhythmClaw" target="_blank" rel="noopener" class="btn btn-outline btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </a>
+        <button class="mobile-menu-btn" data-menu-toggle aria-label="Open menu" aria-expanded="false">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Nav -->
+  <nav class="mobile-nav" data-mobile-nav aria-label="Mobile navigation">
+    <a href="#features">Features</a>
+    <a href="#controller">Controller</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#tech">Tech</a>
+    <a href="#contact">Contact</a>
+    <a href="https://github.com/kirkomrk2-web/RhythmClaw" target="_blank" rel="noopener" class="mobile-nav-cta">GitHub</a>
+  </nav>
+
+  <!-- ========== DJ CONTROLLER HERO ========== -->
+  <section class="dj-hero" id="dj-hero">
+    <!-- Ambient glow background -->
+    <div class="dj-hero-bg" aria-hidden="true">
+      <div class="dj-glow dj-glow--left"></div>
+      <div class="dj-glow dj-glow--right"></div>
+    </div>
+
+    <!-- Connection Status Bar -->
+    <div class="connection-bar" id="connectionBar">
+      <div class="conn-item">
+        <span class="conn-dot conn-dot--red" id="controllerDot"></span>
+        <span class="conn-label" id="controllerLabel">DDJ-FLX4 Disconnected</span>
+      </div>
+      <div class="conn-item">
+        <span class="conn-dot conn-dot--green"></span>
+        <span class="conn-label">Supabase</span>
+      </div>
+      <div class="conn-item conn-automix" id="automixToggle">
+        <span class="automix-label">Automix</span>
+        <div class="toggle-switch" id="automixSwitch">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Automix Settings Panel -->
+    <div class="overlay-panel automix-panel" id="automixPanel" style="display:none;">
+      <div class="overlay-header">
+        <span class="overlay-title">AUTOMIX</span>
+        <button class="overlay-close" id="automixClose" aria-label="Close automix">&times;</button>
+      </div>
+      <div class="automix-settings">
+        <div class="automix-row">
+          <div class="automix-row-icon">&#9654;</div>
+          <div class="automix-row-content">
+            <span class="automix-row-label">Automix</span>
+            <span class="automix-row-desc" id="automixStatus">Off</span>
+          </div>
+          <div class="toggle-switch toggle-switch--lg" id="automixMainSwitch">
+            <div class="toggle-knob"></div>
+          </div>
+        </div>
+        <div class="automix-row">
+          <div class="automix-row-icon">&#9776;</div>
+          <div class="automix-row-content">
+            <span class="automix-row-label">Source</span>
+            <span class="automix-row-desc" id="automixSource">Library</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
+        </div>
+        <div class="automix-row">
+          <div class="automix-row-icon">&#9753;</div>
+          <div class="automix-row-content">
+            <span class="automix-row-label">Transition</span>
+            <span class="automix-row-desc">Automatic, 2 bars</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
+        </div>
+        <div class="automix-mode-tabs">
+          <button class="mode-tab" id="tabManual">Manual</button>
+          <button class="mode-tab mode-tab--active" id="tabAutomix">Automix</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Track Bar -->
+    <div class="track-bar">
+      <div class="track-info track-info--left">
+        <div class="track-art" style="background: linear-gradient(135deg, #ff1744, #8b0000);"></div>
+        <div class="track-meta">
+          <span class="track-artist">Daft Punk</span>
+          <span class="track-title">One More Time</span>
+        </div>
+        <span class="track-time">-3:24</span>
+      </div>
+      <button class="power-btn" id="powerBtn" aria-label="Power">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v8"/><path d="M18.36 6.64A9 9 0 1 1 5.64 6.64"/></svg>
+      </button>
+      <div class="track-info track-info--right">
+        <span class="track-time">-2:58</span>
+        <div class="track-meta">
+          <span class="track-artist">Deadmau5</span>
+          <span class="track-title">Ghosts N Stuff</span>
+        </div>
+        <div class="track-art" style="background: linear-gradient(135deg, #8b0000, #4a0020);"></div>
+      </div>
+    </div>
+
+    <!-- Waveform visualization -->
+    <div class="waveform-row">
+      <div class="waveform-viz waveform-viz--a" id="waveformA"></div>
+      <div class="waveform-viz waveform-viz--b" id="waveformB"></div>
+    </div>
+
+    <!-- Dual Turntables -->
+    <div class="turntables">
+      <div class="deck deck--left">
+        <div class="vinyl" id="vinylA">
+          <div class="vinyl-grooves" aria-hidden="true"></div>
+          <div class="vinyl-label" style="background-image: linear-gradient(135deg, #ff1744, #8b0000);">
+            <div class="vinyl-label-ring"></div>
+            <span class="vinyl-label-text">A</span>
+            <span class="vinyl-label-artist">Daft Punk</span>
+            <div class="vinyl-label-hole"></div>
+          </div>
+          <div class="vinyl-dot"></div>
+        </div>
+        <div class="deck-bpm"><span class="bpm-val">128.0</span> <small>BPM</small></div>
+      </div>
+
+      <button class="fx-btn" id="fxToggle" aria-label="FX Panel">FX</button>
+
+      <div class="deck deck--right">
+        <div class="vinyl" id="vinylB">
+          <div class="vinyl-grooves" aria-hidden="true"></div>
+          <div class="vinyl-label" style="background-image: linear-gradient(135deg, #8b0000, #4a0020);">
+            <div class="vinyl-label-ring"></div>
+            <span class="vinyl-label-text">B</span>
+            <span class="vinyl-label-artist">Deadmau5</span>
+            <div class="vinyl-label-hole"></div>
+          </div>
+          <div class="vinyl-dot"></div>
+        </div>
+        <div class="deck-bpm"><span class="bpm-val">126.5</span> <small>BPM</small></div>
+      </div>
+    </div>
+
+    <!-- Transport Controls & Crossfader -->
+    <div class="transport">
+      <button class="play-btn" id="playA" aria-label="Play Deck A">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+
+      <div class="crossfader-wrap">
+        <span class="mixer-label">MIXER</span>
+        <div class="crossfader-track" id="crossfaderTrack">
+          <div class="crossfader-knob" id="crossfaderKnob"></div>
+        </div>
+      </div>
+
+      <button class="play-btn" id="playB" aria-label="Play Deck B">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+    </div>
+
+    <!-- FX XY Pad Overlay -->
+    <div class="overlay-panel fx-panel" id="fxPanel">
+      <div class="overlay-header">
+        <button class="overlay-nav-btn" id="fxPrev" aria-label="Previous effect">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="overlay-title" id="fxName">Gate</span>
+        <button class="overlay-nav-btn" id="fxNext" aria-label="Next effect">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+        <button class="overlay-close" id="fxClose" aria-label="Close FX panel">&times;</button>
+      </div>
+      <div class="xy-pad" id="xyPad">
+        <div class="xy-crosshair-h"></div>
+        <div class="xy-crosshair-v"></div>
+        <div class="xy-cursor" id="xyCursor"></div>
+        <span class="xy-label xy-label--top">&#9650;</span>
+        <span class="xy-label xy-label--bottom">&#9660;</span>
+        <span class="xy-label xy-label--left">&#9664;</span>
+        <span class="xy-label xy-label--right">&#9654;</span>
+      </div>
+    </div>
+
+    <!-- Sample Pad Grid Overlay -->
+    <div class="overlay-panel sample-panel" id="samplePanel">
+      <div class="overlay-header">
+        <span class="overlay-title">SAMPLER</span>
+        <button class="overlay-close" id="sampleClose" aria-label="Close sampler">&times;</button>
+      </div>
+      <div class="sample-grid" id="sampleGrid">
+        <button class="sample-pad" data-sound="airhorn" data-color="#4fc3f7" aria-label="Air Horn">
+          <span class="pad-label">Air Horn</span>
+        </button>
+        <button class="sample-pad" data-sound="uhh" data-color="#ab47bc" aria-label="Uhh">
+          <span class="pad-label">Uhh</span>
+        </button>
+        <button class="sample-pad" data-sound="echo" data-color="#ec407a" aria-label="Echo Bleep">
+          <span class="pad-label">Echo Bleep</span>
+        </button>
+        <button class="sample-pad" data-sound="chord" data-color="#e91e63" aria-label="Chord 1">
+          <span class="pad-label">Chord 1</span>
+        </button>
+        <button class="sample-pad" data-sound="hat" data-color="#f48fb1" aria-label="Drum Hat">
+          <span class="pad-label">Drum Hat</span>
+        </button>
+        <button class="sample-pad" data-sound="cymbal" data-color="#ffb74d" aria-label="Cymbal">
+          <span class="pad-label">Cymbal</span>
+        </button>
+        <button class="sample-pad" data-sound="kick" data-color="#ffee58" aria-label="Drum Kick">
+          <span class="pad-label">Drum Kick</span>
+        </button>
+        <button class="sample-pad" data-sound="snare" data-color="#66bb6a" aria-label="Drum Snare">
+          <span class="pad-label">Drum Snare</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="dj-bottom-nav">
+      <button class="bottom-nav-btn" id="navEQ" aria-label="Equalizer view">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/></svg>
+      </button>
+      <button class="bottom-nav-btn active" id="navMain" aria-label="Main DJ view">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+      <button class="bottom-nav-btn" id="navSampler" aria-label="Sample pads">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </button>
+    </div>
+
+    <!-- Telegram CTA (shown when not in TG WebApp) -->
+    <div class="dj-telegram-cta" id="telegramCta">
+      <a href="https://t.me/RhythmClawBot" target="_blank" rel="noopener" class="btn btn-neon btn-sm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.94 8.13l-2.01 9.47c-.15.68-.54.85-1.1.53l-3.04-2.24-1.47 1.41c-.16.16-.3.3-.61.3l.22-3.1 5.62-5.08c.24-.22-.05-.34-.38-.13L8.49 13.8l-2.97-.93c-.65-.2-.66-.65.14-.96l11.59-4.47c.54-.2 1.01.13.84.96l-.15-.27z"/></svg>
+        Open in Telegram
+      </a>
+    </div>
+  </section>
+
+  <!-- ========== FEATURES ========== -->
+  <section class="section features-section" id="features">
+    <div class="section-container">
+      <div class="section-header" data-reveal="fade">
+        <span class="section-eyebrow">Capabilities</span>
+        <h2 class="section-title">AI DJ Features</h2>
+        <p class="section-desc">Everything you need for intelligent, automated DJ sessions.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card" data-reveal="up" data-reveal-delay="0">
+          <div class="feature-icon feature-icon--crimson">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h3 class="feature-title">Real-Time Beat Matching</h3>
+          <p class="feature-desc">AI analyzes BPM and beat grid of both tracks in real-time, automatically synchronizing tempo for seamless transitions.</p>
+        </div>
+        <div class="feature-card" data-reveal="up" data-reveal-delay="100">
+          <div class="feature-icon feature-icon--green">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/></svg>
+          </div>
+          <h3 class="feature-title">Intelligent Crossfading</h3>
+          <p class="feature-desc">Smooth, energy-aware crossfade algorithms that consider harmonic keys, energy levels, and crowd momentum.</p>
+        </div>
+        <div class="feature-card" data-reveal="up" data-reveal-delay="200">
+          <div class="feature-icon feature-icon--crimson">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h3 class="feature-title">MIDI Protocol Integration</h3>
+          <p class="feature-desc">Full bidirectional MIDI control with Pioneer DDJ-FLX4. Jog wheels, faders, pads — all mapped and responsive.</p>
+        </div>
+        <div class="feature-card" data-reveal="up" data-reveal-delay="300">
+          <div class="feature-icon feature-icon--green">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.94 8.13l-2.01 9.47c-.15.68-.54.85-1.1.53l-3.04-2.24-1.47 1.41c-.16.16-.3.3-.61.3l.22-3.1 5.62-5.08c.24-.22-.05-.34-.38-.13L8.49 13.8l-2.97-.93c-.65-.2-.66-.65.14-.96l11.59-4.47c.54-.2 1.01.13.84.96l-.15-.27z"/></svg>
+          </div>
+          <h3 class="feature-title">Telegram Mini App</h3>
+          <p class="feature-desc">Control your DJ sessions directly from Telegram. Queue tracks, adjust settings, and monitor playback from your phone.</p>
+        </div>
+        <div class="feature-card" data-reveal="up" data-reveal-delay="100">
+          <div class="feature-icon feature-icon--green">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <h3 class="feature-title">Smart Recommendations</h3>
+          <p class="feature-desc">AI-powered track suggestions based on BPM, key, energy, and genre analysis. Keeps the dancefloor moving.</p>
+        </div>
+        <div class="feature-card" data-reveal="up" data-reveal-delay="200">
+          <div class="feature-icon feature-icon--crimson">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <h3 class="feature-title">Audio Analysis Engine</h3>
+          <p class="feature-desc">Deep audio fingerprinting with Python. Extracts BPM, key, energy, spectral features, and beat positions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== DJ CONTROLLER SHOWCASE ========== -->
+  <section class="section controller-section" id="controller">
+    <div class="section-container">
+      <div class="section-header" data-reveal="fade">
+        <span class="section-eyebrow">Hardware</span>
+        <h2 class="section-title">Pioneer DDJ-FLX4</h2>
+        <p class="section-desc">Professional DJ controller with AI-enhanced MIDI integration.</p>
+      </div>
+      <div class="controller-showcase" data-reveal="scale">
+        <div class="dj-controller">
+          <div class="controller-deck controller-deck--left">
+            <div class="jog-wheel">
+              <div class="jog-wheel-inner"><div class="jog-wheel-dot"></div></div>
+              <svg class="jog-ring" viewBox="0 0 120 120" aria-hidden="true">
+                <circle cx="60" cy="60" r="55" fill="none" stroke="#00e676" stroke-width="1" opacity="0.3"/>
+                <circle cx="60" cy="60" r="55" fill="none" stroke="#00e676" stroke-width="2" stroke-dasharray="12 8" class="jog-ring-dash"/>
+              </svg>
+            </div>
+            <div class="deck-label">DECK A</div>
+            <div class="deck-info"><span class="bpm-display">128.0 <small>BPM</small></span></div>
+          </div>
+          <div class="controller-mixer">
+            <div class="mixer-channel">
+              <div class="channel-fader"><div class="fader-knob"></div></div>
+              <div class="channel-eq">
+                <div class="eq-knob eq-knob--hi"></div>
+                <div class="eq-knob eq-knob--mid"></div>
+                <div class="eq-knob eq-knob--lo"></div>
+              </div>
+            </div>
+            <div class="crossfader-track-showcase"><div class="crossfader-knob-showcase"></div></div>
+            <div class="mixer-channel">
+              <div class="channel-fader"><div class="fader-knob"></div></div>
+              <div class="channel-eq">
+                <div class="eq-knob eq-knob--hi"></div>
+                <div class="eq-knob eq-knob--mid"></div>
+                <div class="eq-knob eq-knob--lo"></div>
+              </div>
+            </div>
+          </div>
+          <div class="controller-deck controller-deck--right">
+            <div class="jog-wheel">
+              <div class="jog-wheel-inner"><div class="jog-wheel-dot"></div></div>
+              <svg class="jog-ring" viewBox="0 0 120 120" aria-hidden="true">
+                <circle cx="60" cy="60" r="55" fill="none" stroke="#ff1744" stroke-width="1" opacity="0.3"/>
+                <circle cx="60" cy="60" r="55" fill="none" stroke="#ff1744" stroke-width="2" stroke-dasharray="12 8" class="jog-ring-dash"/>
+              </svg>
+            </div>
+            <div class="deck-label">DECK B</div>
+            <div class="deck-info"><span class="bpm-display bpm-display--b">126.5 <small>BPM</small></span></div>
+          </div>
+        </div>
+        <div class="performance-pads" data-reveal="up" data-reveal-delay="200">
+          <div class="pad pad--active" style="--pad-color: #ff1744"></div>
+          <div class="pad" style="--pad-color: #00e676"></div>
+          <div class="pad pad--active" style="--pad-color: #8b0000"></div>
+          <div class="pad" style="--pad-color: #ff1744"></div>
+          <div class="pad" style="--pad-color: #00e676"></div>
+          <div class="pad pad--active" style="--pad-color: #ff1744"></div>
+          <div class="pad" style="--pad-color: #8b0000"></div>
+          <div class="pad pad--active" style="--pad-color: #00e676"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== HOW IT WORKS ========== -->
+  <section class="section how-section" id="how-it-works">
+    <div class="section-container">
+      <div class="section-header" data-reveal="fade">
+        <span class="section-eyebrow">Workflow</span>
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-desc">Three steps to AI-powered DJ sessions.</p>
+      </div>
+      <div class="flow-grid">
+        <div class="flow-step" data-reveal="up" data-reveal-delay="0">
+          <div class="flow-number">01</div>
+          <div class="flow-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00e676" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M12 17v4M8 21h8"/></svg>
+          </div>
+          <h3 class="flow-title">Connect Controller</h3>
+          <p class="flow-desc">Plug in your Pioneer DDJ-FLX4 via USB. RhythmClaw auto-detects the controller and maps all MIDI controls.</p>
+        </div>
+        <div class="flow-connector" aria-hidden="true">
+          <svg width="40" height="2" viewBox="0 0 40 2"><line x1="0" y1="1" x2="40" y2="1" stroke="#8b0000" stroke-width="2" stroke-dasharray="6 4"/></svg>
+        </div>
+        <div class="flow-step" data-reveal="up" data-reveal-delay="150">
+          <div class="flow-number">02</div>
+          <div class="flow-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ff1744" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <h3 class="flow-title">AI Analyzes</h3>
+          <p class="flow-desc">Python engine analyzes your music library — BPM detection, key analysis, energy mapping, and harmonic compatibility.</p>
+        </div>
+        <div class="flow-connector" aria-hidden="true">
+          <svg width="40" height="2" viewBox="0 0 40 2"><line x1="0" y1="1" x2="40" y2="1" stroke="#8b0000" stroke-width="2" stroke-dasharray="6 4"/></svg>
+        </div>
+        <div class="flow-step" data-reveal="up" data-reveal-delay="300">
+          <div class="flow-number">03</div>
+          <div class="flow-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00e676" stroke-width="2" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </div>
+          <h3 class="flow-title">Seamless Mixing</h3>
+          <p class="flow-desc">AI handles beat-matching and crossfading while you focus on track selection and crowd energy. Control via Telegram.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TECHNOLOGY ========== -->
+  <section class="section tech-section" id="tech">
+    <div class="section-container">
+      <div class="section-header" data-reveal="fade">
+        <span class="section-eyebrow">Stack</span>
+        <h2 class="section-title">Technology</h2>
+        <p class="section-desc">Built with precision tools for real-time audio processing.</p>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-card" data-reveal="up" data-reveal-delay="0">
+          <div class="tech-card-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00e676" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>
+            <span class="tech-label">Python</span>
+          </div>
+          <div class="tech-bar"><div class="tech-bar-fill" style="--width: 78.9%; --bar-color: #00e676"></div></div>
+          <span class="tech-percent">78.9%</span>
+          <p class="tech-detail">Core engine — audio analysis, MIDI processing, AI algorithms, real-time beat detection.</p>
+        </div>
+        <div class="tech-card" data-reveal="up" data-reveal-delay="100">
+          <div class="tech-card-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff1744" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            <span class="tech-label">MIDI Protocol</span>
+          </div>
+          <div class="tech-desc-block">
+            <p class="tech-detail">Bidirectional communication with Pioneer DDJ-FLX4. Jog wheels, faders, performance pads, LED feedback.</p>
+          </div>
+        </div>
+        <div class="tech-card" data-reveal="up" data-reveal-delay="200">
+          <div class="tech-card-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="color: #8b0000"><path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.94 8.13l-2.01 9.47c-.15.68-.54.85-1.1.53l-3.04-2.24-1.47 1.41c-.16.16-.3.3-.61.3l.22-3.1 5.62-5.08c.24-.22-.05-.34-.38-.13L8.49 13.8l-2.97-.93c-.65-.2-.66-.65.14-.96l11.59-4.47c.54-.2 1.01.13.84.96l-.15-.27z"/></svg>
+            <span class="tech-label">Telegram Mini App</span>
+          </div>
+          <div class="tech-desc-block">
+            <p class="tech-detail">WebApp interface inside Telegram. Remote control, track queue, real-time status, session management.</p>
+          </div>
+        </div>
+        <div class="tech-card" data-reveal="up" data-reveal-delay="300">
+          <div class="tech-card-header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00e676" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+            <span class="tech-label">Pioneer DDJ-FLX4</span>
+          </div>
+          <div class="tech-desc-block">
+            <p class="tech-detail">2-channel performance DJ controller. USB class compliant, 16 performance pads, built-in sound card.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CTA ========== -->
+  <section class="section cta-section" id="cta">
+    <div class="section-container">
+      <div class="cta-content" data-reveal="scale">
+        <h2 class="cta-title">Ready to <span class="neon-text neon-text--crimson">Drop</span> the Beat?</h2>
+        <p class="cta-desc">Open RhythmClaw in Telegram and let AI handle the mixing. Your audience won't know the difference.</p>
+        <div class="cta-actions">
+          <a href="https://t.me/RhythmClawBot" target="_blank" rel="noopener" class="btn btn-neon btn-lg">Launch in Telegram</a>
+          <a href="https://github.com/kirkomrk2-web/RhythmClaw" target="_blank" rel="noopener" class="btn btn-ghost btn-lg">Star on GitHub</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CONTACT FORM ========== -->
+  <section class="section contact-section" id="contact">
+    <div class="section-container">
+      <div class="section-header" data-reveal="fade">
+        <span class="section-eyebrow">Get In Touch</span>
+        <h2 class="section-title">Contact</h2>
+        <p class="section-desc">Have questions about RhythmClaw? Drop us a message.</p>
+      </div>
+      <form class="contact-form" data-reveal="up" novalidate>
+        <div class="form-group">
+          <label for="contact-email" class="form-label">Email address</label>
+          <input type="email" id="contact-email" name="email" class="form-input" placeholder="you@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="contact-message" class="form-label">Message</label>
+          <textarea id="contact-message" name="message" class="form-textarea" rows="5" placeholder="Tell us what you're working on..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-neon btn-lg form-submit">
+          Send Message
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="/" class="footer-logo" aria-label="RhythmClaw Home">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+            <circle cx="18" cy="18" r="16" stroke="#ff1744" stroke-width="1.5" opacity="0.4"/>
+            <line x1="10" y1="24" x2="12" y2="10" stroke="#ff1744" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="16" y1="26" x2="18" y2="8" stroke="#00e676" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="22" y1="24" x2="24" y2="12" stroke="#ff1744" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          <span>RhythmClaw</span>
+        </a>
+        <p class="footer-tagline">AI DJ Controller — Pioneer DDJ-FLX4 + Telegram Mini App</p>
+      </div>
+      <div class="footer-newsletter">
+        <h4 class="footer-col-title">Stay Updated</h4>
+        <p class="footer-newsletter-desc">Get release notes and DJ tips straight to your inbox.</p>
+        <form class="newsletter-form" novalidate>
+          <input type="email" name="email" class="newsletter-input" placeholder="your@email.com" required autocomplete="email" aria-label="Email for newsletter">
+          <button type="submit" class="btn btn-neon newsletter-btn">Subscribe</button>
+        </form>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4 class="footer-col-title">Project</h4>
+          <a href="#features">Features</a>
+          <a href="#controller">Controller</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#tech">Technology</a>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-col-title">Connect</h4>
+          <a href="https://github.com/kirkomrk2-web/RhythmClaw" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://t.me/RhythmClawBot" target="_blank" rel="noopener">Telegram</a>
+          <a href="#contact">Contact</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 RhythmClaw. Part of the <a href="#" class="footer-ecosystem-link">Wallestars</a> ecosystem.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="/form-handler.js"></script>
+</body>
+</html>
