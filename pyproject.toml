@@ -1,0 +1,24 @@
+[tool.ruff]
+target-version = "py311"
+line-length = 110
+extend-exclude = [".venv", "build", "dist"]
+
+[tool.ruff.lint]
+# A pragmatic baseline: pyflakes + pycodestyle errors + import sort + bugbear,
+# but ignore noisy rules so CI passes on the existing codebase without rewrites.
+select = ["E", "F", "I", "B", "UP"]
+ignore = [
+  "E501",  # line too long — handled by formatter, not blocking
+  "E741",  # ambiguous variable name (we use `l` etc. in MIDI math)
+  "B008",  # do not perform function calls in argument defaults (FastAPI Depends pattern)
+  "UP015", # `open(...)` mode redundancy — cosmetic
+  "E402",  # module-level imports not at top: telegram_bot.py loads .env first by design
+  "I001",  # import block ordering: keep current grouping with section comments
+  "UP017", # `datetime.timezone.utc` is fine; UTC alias is 3.11+ only and adds churn
+  "UP007", # `Optional[X]` over `X | None` is fine for stable libraries
+  "UP035", # `typing.X` over modernized imports — cosmetic
+  "B904",  # raise-from chains: not worth churning telegram error handling
+]
+
+[tool.ruff.format]
+quote-style = "double"

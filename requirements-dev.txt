@@ -1,0 +1,3 @@
+# Linting + formatting + type checking for CI
+ruff==0.6.9
+mypy==1.11.2

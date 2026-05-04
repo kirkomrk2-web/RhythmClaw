@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-lint:
+    name: Python lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dev tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: ruff check
+        run: ruff check .
+
+      - name: ruff format --check (advisory)
+        # Advisory only for now — gradual rollout. Flip to blocking after a
+        # one-shot 'ruff format .' commit lands in main.
+        run: ruff format --check . || echo "::warning::Some files would be reformatted by ruff format"
+
+  python-syntax:
+    name: Python syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile all Python files
+        run: |
+          python -m compileall -q midi_server.py telegram_bot.py
+
+  js-lint:
+    name: JS / HTML smoke check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate JS syntax with node --check
+        run: |
+          node --check form-handler.js
+          node --check script.js
+          node --check server.js
+
+      - name: HTML smoke check
+        run: |
+          # Minimal sanity: index.html must contain <!doctype html> and <body>
+          grep -i '<!doctype html' index.html >/dev/null || { echo '::error::index.html missing doctype'; exit 1; }
+          grep -i '<body'           index.html >/dev/null || { echo '::error::index.html missing <body>'; exit 1; }
+          echo "HTML OK"
