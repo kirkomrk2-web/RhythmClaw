@@ -17,6 +17,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23080808'/><path d='M8 22V14L12 10V22M14 22V12L18 8V22M20 22V14L24 10V22' stroke='%23ff1744' stroke-width='2' stroke-linecap='round'/><circle cx='16' cy='6' r='2' fill='%2300e676'/></svg>">
   <link href="https://api.fontshare.com/v2/css?f[]=clash-grotesk@400,500,600,700&f[]=switzer@400,500,600,700&display=swap" rel="stylesheet">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -590,5 +591,43 @@
 
   <script src="script.js"></script>
   <script src="/form-handler.js"></script>
+  <script>
+    // ===== SUPABASE WIRING =====
+    const SUPABASE_URL = 'https://ansiaiuaygcfztabtknl.supabase.co'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuc2lhaXVheWdjZnp0YWJ0a25sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwNjg2NjksImV4cCI6MjA3ODY0NDY2OX0.-a4CakCH4DhHGOG1vMo9nVdtW0ux252QqXRi-7CA_gA'
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+    // Load tracks on startup
+    async function loadTracks() {
+      const { data, error } = await sb.from('tracks').select('*').order('created_at', { ascending: false }).limit(50)
+      if (error) { console.warn('[rhythmclaw] tracks load failed:', error.message); return }
+      if (data && data.length > 0) {
+        console.log('[rhythmclaw] loaded', data.length, 'tracks from Supabase')
+        // Update track list UI if element exists
+        const trackList = document.getElementById('track-list') || document.querySelector('.track-list')
+        if (trackList && data.length > 0) {
+          trackList.innerHTML = data.map(t => `<div class="track-item">${t.title || t.name || 'Unknown'}</div>`).join('')
+        }
+      }
+    }
+
+    // Log mix session start
+    async function logMixSession() {
+      const { error } = await sb.from('mix_sessions').insert({
+        started_at: new Date().toISOString(),
+        device: navigator.userAgent.includes('Quest') ? 'quest3' : 'desktop'
+      })
+      if (!error) console.log('[rhythmclaw] mix session logged to Supabase')
+    }
+
+    // Record page view
+    sb.from('page_views').insert({ page: '/rhythmclaw', source: 'rhythmclaw' }).then(() => {})
+
+    // Init on load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadTracks()
+      logMixSession()
+    })
+  </script>
 </body>
 </html>
